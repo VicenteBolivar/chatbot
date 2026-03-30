@@ -35,10 +35,24 @@ app.get('/webhook', (req, res) => {
 
 // Route for POST requests
 app.post('/webhook', (req, res) => {
-  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-  console.log(`\n\nWebhook received ${timestamp}\n`);
+  console.log("📩 EVENT RECEIVED:");
   console.log(JSON.stringify(req.body, null, 2));
-  res.status(200).end();
+
+  const entry = req.body.entry?.[0];
+  const changes = entry?.changes?.[0];
+  const value = changes?.value;
+  const messages = value?.messages;
+
+  if (messages) {
+    const message = messages[0];
+    const from = message.from;
+    const text = message.text?.body;
+
+    console.log("📱 From:", from);
+    console.log("💬 Message:", text);
+  }
+
+  res.sendStatus(200);
 });
 
 // Start the server
