@@ -2,19 +2,27 @@ const whatsappService = require('./whatsappService');
 
 class MessageHandler {
   async handleIncomingMessage(message, senderInfo) {
-    const from = message.from;
-    const text = message.text?.body;
+    if (message?.type === 'text') {
+      const incomingMessage = message.text.body.toLowerCase().trim();
 
-    console.log("📱 From:", from);
-    console.log("💬 Message:", text);
-
-    let reply = "No entendí tu mensaje";
-
-    if (text.toLowerCase() === "hola") {
-      reply = "Hola 👋 ¿En qué puedo ayudarte?";
+      if(this.isGreeting(incomingMessage)){
+        await this.sendWelcomeMessage(message.from, message.id)
+      } else {
+        const response = "No entendí tu mensaje";
+        await whatsappService.sendMessage(message.from, response, message.id)
+      }
+      await whatsappService.markAsRead(message.id)
     }
+  }
 
-    await whatsappService.sendMessage(from, reply);
+  isGreeting(message){
+    const greetings = ["hola", "hello", "hi", "buenos dias", "buenas tardes", "buenas noches", ".", "buenas"];
+    return greetings.includes(message);
+  }
+
+  async sendWelcomeMessage(to, messageId) {
+    const welcomeMesagge = "Hola 👋 Bienvenido a nuestro servicio de chatbot automatico" + "¿En qué puedo ayudarte hoy?";
+    await whatsappService.sendMessage(to, welcomeMesagge, messageId)
   }
 }
 
