@@ -52,21 +52,28 @@ app.post('/webhook', async (req, res) => {
     console.log("📱 From:", from);
     console.log("💬 Message:", text);
 
-    // 👉 RESPUESTA AUTOMÁTICA
-    await axios.post(
-      `https://graph.facebook.com/v18.0/${value.metadata.phone_number_id}/messages`,
-      {
-        messaging_product: "whatsapp",
-        to: from,
-        text: { body: `Recibí tu mensaje: ${text}` }
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
-          "Content-Type": "application/json"
+    try {
+      const response = await axios.post(
+        `https://graph.facebook.com/v18.0/${value.metadata.phone_number_id}/messages`,
+        {
+          messaging_product: "whatsapp",
+          to: from,
+          text: { body: `Recibí tu mensaje: ${text}` }
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.API_TOKEN}`,
+            "Content-Type": "application/json"
+          }
         }
-      }
-    );
+      );
+
+      console.log("✅ RESPONSE SENT:", response.data);
+
+    } catch (error) {
+      console.log("❌ ERROR SENDING MESSAGE:");
+      console.log(error.response?.data || error.message);
+    }
   }
 
   res.sendStatus(200);
