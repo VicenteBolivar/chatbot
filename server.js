@@ -1,3 +1,4 @@
+const axios = require('axios');
 // Import Express.js
 const express = require('express');
 
@@ -34,7 +35,7 @@ app.get('/webhook', (req, res) => {
 });
 
 // Route for POST requests
-app.post('/webhook', (req, res) => {
+app.post('/webhook', async (req, res) => {
   console.log("📩 EVENT RECEIVED:");
   console.log(JSON.stringify(req.body, null, 2));
 
@@ -50,6 +51,22 @@ app.post('/webhook', (req, res) => {
 
     console.log("📱 From:", from);
     console.log("💬 Message:", text);
+
+    // 👉 RESPUESTA AUTOMÁTICA
+    await axios.post(
+      `https://graph.facebook.com/v18.0/${value.metadata.phone_number_id}/messages`,
+      {
+        messaging_product: "whatsapp",
+        to: from,
+        text: { body: `Recibí tu mensaje: ${text}` }
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
   }
 
   res.sendStatus(200);
