@@ -1,4 +1,5 @@
 const whatsappService = require('./whatsappService');
+const { saveAppointment } = require('./firebaseService');
 
 class MessageHandler {
   constructor() {
@@ -79,6 +80,12 @@ class MessageHandler {
 
       case 'date':
         state.date = message;
+        await saveAppointment({
+          phone: user,
+          name: state.name,
+          service: state.service,
+          date: state.date
+        });
         response = `✅ Cita agendada:\n\n👤 Nombre: ${state.name}\n💇 Servicio: ${state.service}\n📅 Fecha: ${state.date}`;
         
         // 🔥 eliminar estado (IMPORTANTE)
