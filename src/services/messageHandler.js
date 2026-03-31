@@ -19,7 +19,7 @@ class MessageHandler {
       const incomingMessage = message.text.body.toLowerCase().trim();
 
       if (this.isGreeting(incomingMessage)) {
-        await this.sendWelcomeMessage(message.from, message.id);
+        await this.sendWelcomeMessage(message.from, message.id, senderInfo);
       } else {
         const response = "No entendí tu mensaje";
         await whatsappService.sendMessage(message.from, response);
@@ -34,8 +34,13 @@ class MessageHandler {
     return greetings.includes(message);
   }
 
-  async sendWelcomeMessage(to, messageId) {
-    const welcomeMesagge = "Hola 👋 Bienvenido a nuestro servicio de chatbot automatico" + "¿En qué puedo ayudarte hoy?";
+  getSenderName(senderInfo) {
+    return senderInfo.profile?.name || senderInfo.wa_id || ""
+  }
+
+  async sendWelcomeMessage(to, messageId, senderInfo) {
+    const name = this.getSenderName(senderInfo)
+    const welcomeMesagge = `Hola 👋 ${name} Bienvenido a nuestro servicio de chatbot automatico" + "¿En qué puedo ayudarte hoy?`;
     await whatsappService.sendMessage(to, welcomeMesagge, messageId)
   }
 }
